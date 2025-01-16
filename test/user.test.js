@@ -1,14 +1,15 @@
 import supertest from "supertest"
 import { web } from "../src/application/web.js"
 import { logger } from "../src/application/logging.js"
-import { createTestUser, removeTestUser } from "./test-util.js"
+import { createTestUser, getTestUser, removeTestUser } from "./test-util.js"
+import bcrypt from "bcrypt"
 
 describe("POST /api/users", () => {
     afterEach(async () => {
         await removeTestUser()
     })
 
-    it("Should can register new user", async () => {
+    it("dapat regist user baru", async () => {
         const result = await supertest(web)
             .post('/api/users')
             .send({
@@ -23,7 +24,7 @@ describe("POST /api/users", () => {
         expect(result.body.data.name).toBe('Reyy')
     })
 
-    it("Should reject if request invalid", async () => {
+    it("regist ditolak karena request invalid", async () => {
         const result = await supertest(web)
             .post('/api/users')
             .send({
@@ -38,7 +39,7 @@ describe("POST /api/users", () => {
         expect(result.body.errors).toBeDefined
     })
 
-    it("Should reject if username already registered", async () => {
+    it("regist ditolak username sudah terdaftar", async () => {
         const result = await supertest(web)
             .post('/api/users')
             .send({
@@ -65,7 +66,7 @@ describe("POST /api/users/login", () => {
         await removeTestUser()
     })
 
-    it("Should can login", async () => {
+    it("user dapat login", async () => {
         const result = await supertest(web)
             .post('/api/users/login')
             .send({
@@ -80,7 +81,7 @@ describe("POST /api/users/login", () => {
         expect(result.body.data.token).not.toBe("test")
     })
 
-    it("Should reject login if request is invalid", async () => {
+    it("login ditolak karena request invalid", async () => {
         const result = await supertest(web)
             .post('/api/users/login')
             .send({
@@ -94,7 +95,7 @@ describe("POST /api/users/login", () => {
         expect(result.body.errors).toBeDefined()
     })
 
-    it("Should reject login if password wrong", async () => {
+    it("login ditolak karena password atau username salah", async () => {
         const result = await supertest(web)
             .post('/api/users/login')
             .send({
@@ -118,7 +119,7 @@ describe("GET /api/users/current", () => {
         await removeTestUser()
     })
 
-    it("should can get current user", async () => {
+    it("dapat mendapatkan data di user", async () => {
         const result = await supertest(web)
             .get('/api/users/current')
             .set('Authorization', 'test')
@@ -126,5 +127,70 @@ describe("GET /api/users/current", () => {
         expect(result.status).toBe(200)
         expect(result.body.data.username).toBe("Reyy12")
         expect(result.body.data.name).toBe("Reyy")
+    })
+})
+
+describe("PATCH /api/users/current", () => {
+    beforeEach(async () => {
+        await createTestUser()
+    })
+
+    afterEach(async () => {
+        await removeTestUser()
+    })
+
+    it("dapat update user", async () => {
+        const result = await supertest(web)
+            .patch("/api/users/current")
+            .set("Authorization", "test")
+            .send({
+                name: "Rey",
+                password: "passwordku"
+            })
+        
+        expect(result.status).toBe(200)
+        expect(result.body.data.username).toBe("Reyy12")
+        expect(result.body.data.name).toBe("Rey")
+
+        const user = await getTestUser()
+        expect(await bcrypt.compare("passwordku", user.password)).toBe(true)
+    })
+
+    it("melakukan update password", async () => {
+        const result = await supertest(web)
+            .patch("/api/users/current")
+            .set("Authorization", "test")
+            .send({
+                password: "passwordku"
+            })
+        
+        expect(result.status).toBe(200)
+        expect(result.body.data.username).toBe("Reyy12")
+
+        const user = await getTestUser()
+        expect(await bcrypt.compare("passwordku", user.password)).toBe(true)
+    })
+
+    it("melakukan update nama", async () => {
+        const result = await supertest(web)
+            .patch("/api/users/current")
+            .set("Authorization", "test")
+            .send({
+                password: "passwordku"
+            })
+        
+        expect(result.status).toBe(200)
+        expect(result.body.data.username).toBe("Reyy12")
+    })
+
+    it("menolak update", async () => {
+        const result = await supertest(web)
+            .patch("/api/users/current")
+            .set("Authorization", "salah")
+            .send({
+                password: "passwordku"
+            })
+        
+        expect(result.status).toBe(401)
     })
 })
