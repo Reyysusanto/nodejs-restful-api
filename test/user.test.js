@@ -1,12 +1,12 @@
 import supertest from "supertest"
 import { web } from "../src/application/web.js"
 import { logger } from "../src/application/logging.js"
-import { createTestUser, getTestUser, removeTestUser } from "./test-util.js"
+import { createUser, getUser, removeUser } from "./test-util.js"
 import bcrypt from "bcrypt"
 
 describe("POST /api/users", () => {
     afterEach(async () => {
-        await removeTestUser()
+        await removeUser()
     })
 
     it("dapat regist user baru", async () => {
@@ -59,11 +59,11 @@ describe("POST /api/users", () => {
 
 describe("POST /api/users/login", () => {
     beforeEach(async () => {
-        await createTestUser()
+        await createUser()
     })
 
     afterEach(async () => {
-        await removeTestUser()
+        await removeUser()
     })
 
     it("user dapat login", async () => {
@@ -112,11 +112,11 @@ describe("POST /api/users/login", () => {
 
 describe("GET /api/users/current", () => {
     beforeEach(async () => {
-        await createTestUser()
+        await createUser()
     })
 
     afterEach(async () => {
-        await removeTestUser()
+        await removeUser()
     })
 
     it("dapat mendapatkan data di user", async () => {
@@ -132,11 +132,11 @@ describe("GET /api/users/current", () => {
 
 describe("PATCH /api/users/current", () => {
     beforeEach(async () => {
-        await createTestUser()
+        await createUser()
     })
 
     afterEach(async () => {
-        await removeTestUser()
+        await removeUser()
     })
 
     it("dapat update user", async () => {
@@ -152,7 +152,7 @@ describe("PATCH /api/users/current", () => {
         expect(result.body.data.username).toBe("Reyy12")
         expect(result.body.data.name).toBe("Rey")
 
-        const user = await getTestUser()
+        const user = await getUser()
         expect(await bcrypt.compare("passwordku", user.password)).toBe(true)
     })
 
@@ -167,7 +167,7 @@ describe("PATCH /api/users/current", () => {
         expect(result.status).toBe(200)
         expect(result.body.data.username).toBe("Reyy12")
 
-        const user = await getTestUser()
+        const user = await getUser()
         expect(await bcrypt.compare("passwordku", user.password)).toBe(true)
     })
 
@@ -197,11 +197,11 @@ describe("PATCH /api/users/current", () => {
 
 describe("DELETE /api/users/logout", () => {
     beforeEach(async () => {
-        await createTestUser()
+        await createUser()
     })
 
     afterEach(async () => {
-        await removeTestUser()
+        await removeUser()
     })
 
     it("berhasil logout", async () => {
@@ -212,7 +212,7 @@ describe("DELETE /api/users/logout", () => {
         expect(result.status).toBe(200)
         expect(result.body.data).toBe("OK")
 
-        const user = await getTestUser()
+        const user = await getUser()
         expect(user.token).toBeNull()
     })
 
