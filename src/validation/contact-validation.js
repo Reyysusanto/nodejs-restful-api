@@ -9,4 +9,12 @@ const contactRegister = Joi.object({
 
 const getContactValidation = Joi.number().positive().required()
 
-export { contactRegister, getContactValidation }
+const updateContactValidation = Joi.object({
+    id: Joi.number().positive().required(),
+    first_name: Joi.string().max(50).required(),
+    last_name: Joi.string().max(50).optional(),
+    email: Joi.string().max(50).optional(),
+    phone: Joi.string().max(16).optional(),
+})
+
+export { contactRegister, getContactValidation, updateContactValidation }
