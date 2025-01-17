@@ -186,10 +186,40 @@ describe("PATCH /api/users/current", () => {
     it("menolak update", async () => {
         const result = await supertest(web)
             .patch("/api/users/current")
-            .set("Authorization", "salah")
+            .set("Authorization", "gatau")
             .send({
                 password: "passwordku"
             })
+        
+        expect(result.status).toBe(401)
+    })
+})
+
+describe("DELETE /api/users/logout", () => {
+    beforeEach(async () => {
+        await createTestUser()
+    })
+
+    afterEach(async () => {
+        await removeTestUser()
+    })
+
+    it("berhasil logout", async () => {
+        const result = await supertest(web)
+            .delete("/api/users/logout")
+            .set("Authorization", "test")
+        
+        expect(result.status).toBe(200)
+        expect(result.body.data).toBe("OK")
+
+        const user = await getTestUser()
+        expect(user.token).toBeNull()
+    })
+
+    it("gagal logout", async () => {
+        const result = await supertest(web)
+            .delete("/api/users/logout")
+            .set("Authorization", "gatau")
         
         expect(result.status).toBe(401)
     })
