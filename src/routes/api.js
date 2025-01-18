@@ -19,5 +19,6 @@ userRouter.get('/api/contacts', contactController.search)
 
 userRouter.post('/api/contacts/:contactId/addresses', addressContoller.create)
 userRouter.get('/api/contacts/:contactId/addresses/:addressId', addressContoller.get)
+userRouter.put('/api/contacts/:contactId/addresses/:addressId', addressContoller.update)
 
 export { userRouter }
