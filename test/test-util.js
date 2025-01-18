@@ -80,4 +80,28 @@ const removeAllAddress = async () => {
     })
 }
 
-export { removeUser, createUser, getUser, removeAllContacts, createContact, getContact, createManyContact, removeAllAddress }
+const createAddress = async () => {
+    const contact = await getContact()
+    await prismaClient.address.create({
+        data: {
+            contact_id: contact.id,
+            street: "jalan",
+            city: 'kota',
+            province: 'provinsi',
+            country: 'indonesia',
+            postal_code: '382829'
+        }
+    })
+}
+
+const getAddress = async () => {
+    return prismaClient.address.findFirst({
+        where: {
+            contact: {
+                username: "Reyy12"
+            }
+        }
+    })
+}
+
+export { removeUser, createUser, getUser, removeAllContacts, createContact, getContact, createManyContact, removeAllAddress, createAddress, getAddress }
