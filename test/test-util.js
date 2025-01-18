@@ -70,4 +70,14 @@ const getContact = async () => {
     })
 }
 
-export { removeUser, createUser, getUser, removeAllContacts, createContact, getContact, createManyContact }
+const removeAllAddress = async () => {
+    await prismaClient.address.deleteMany({
+        where: {
+            contact: {
+                username: "Reyy12"
+            }
+        }
+    })
+}
+
+export { removeUser, createUser, getUser, removeAllContacts, createContact, getContact, createManyContact, removeAllAddress }
