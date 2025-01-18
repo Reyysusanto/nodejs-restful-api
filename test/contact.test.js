@@ -1,6 +1,6 @@
 import supertest from "supertest"
 import { web } from "../src/application/web.js"
-import { createContact, createUser, getContact, removeAllContacts, removeUser } from "./test-util.js"
+import { createContact, createManyContact, createUser, getContact, removeAllContacts, removeUser } from "./test-util.js"
 
 describe('POST /api/contacts', () => {
     beforeEach(async () => {
@@ -125,7 +125,7 @@ describe('DELETE /api/contacts/:contactId', () => {
         await removeUser()
     })
 
-    it('Delete contact sukes', async () => {
+    it('Delete contact sukses', async () => {
         let contact = await getContact()
         const result = await supertest(web)
             .delete('/api/contacts/' + contact.id)
@@ -136,5 +136,98 @@ describe('DELETE /api/contacts/:contactId', () => {
 
         contact = await getContact()
         expect(contact).toBeNull()
+    })
+
+    it('Gagal delete contact', async () => {
+        let contact = await getContact()
+        const result = await supertest(web)
+            .delete('/api/contacts/' + (contact.id + 1))
+            .set('Authorization', 'test')
+        
+        expect(result.status).toBe(404)
+    })
+})
+
+describe('GET /api/contacts', () => {
+    beforeEach(async () => {
+        await createUser()
+        await createManyContact()
+    })
+
+    afterEach(async () => {
+        await removeAllContacts()
+        await removeUser()
+    })
+
+    it("Mencari informasi kontak", async () => {
+        const result = await supertest(web)
+            .get('/api/contacts')
+            .set("Authorization", "test")
+        
+        expect(result.status).toBe(200)
+        expect(result.body.data.length).toBe(10)
+        expect(result.body.paging.page).toBe(1)
+        expect(result.body.paging.total_page).toBe(2)
+        expect(result.body.paging.total_item).toBe(15)
+    })
+
+    it("Mencari informasi kontak di page 2", async () => {
+        const result = await supertest(web)
+            .get('/api/contacts')
+            .query({
+                page: 2
+            })
+            .set("Authorization", "test")
+        
+        expect(result.status).toBe(200)
+        expect(result.body.data.length).toBe(5)
+        expect(result.body.paging.page).toBe(2)
+        expect(result.body.paging.total_page).toBe(2)
+        expect(result.body.paging.total_item).toBe(15)
+    })
+
+    it("Mencari informasi kontak dengan nama", async () => {
+        const result = await supertest(web)
+            .get('/api/contacts')
+            .query({
+                name: "test 1"
+            })
+            .set("Authorization", "test")
+        
+        expect(result.status).toBe(200)
+        expect(result.body.data.length).toBe(6)
+        expect(result.body.paging.page).toBe(1)
+        expect(result.body.paging.total_page).toBe(1)
+        expect(result.body.paging.total_item).toBe(6)
+    })
+
+    it("Mencari informasi kontak dengan email", async () => {
+        const result = await supertest(web)
+            .get('/api/contacts')
+            .query({
+                email: "test1"
+            })
+            .set("Authorization", "test")
+        
+        expect(result.status).toBe(200)
+        expect(result.body.data.length).toBe(6)
+        expect(result.body.paging.page).toBe(1)
+        expect(result.body.paging.total_page).toBe(1)
+        expect(result.body.paging.total_item).toBe(6)
+    })
+
+    it("Mencari informasi kontak dengan no hp", async () => {
+        const result = await supertest(web)
+            .get('/api/contacts')
+            .query({
+                phone: "081293842721"
+            })
+            .set("Authorization", "test")
+        
+        expect(result.status).toBe(200)
+        expect(result.body.data.length).toBe(6)
+        expect(result.body.paging.page).toBe(1)
+        expect(result.body.paging.total_page).toBe(1)
+        expect(result.body.paging.total_item).toBe(6)
     })
 })
