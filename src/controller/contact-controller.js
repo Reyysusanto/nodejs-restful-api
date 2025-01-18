@@ -1,3 +1,4 @@
+import { prismaClient } from "../application/database.js"
 import contactService from "../service/contact-service.js"
 
 const create = async (req, res, next) => {
@@ -40,4 +41,18 @@ const update = async (req, res, next) => {
     }
 }
 
-export default { create, get, update }
+const remove = async (req, res, next) => {
+    try {
+        const user = req.user
+        const contactId = req.params.contactId
+        
+        await contactService.removeContact(user, contactId)
+        res.status(200).json({
+            data: "OK"
+        })
+    } catch(err) {
+        next(err)
+    }
+}
+
+export default { create, get, update, remove }

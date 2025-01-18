@@ -113,3 +113,28 @@ describe('PUT /api/contacts/:contactId', () => {
         expect(result.status).toBe(400)
     })
 })
+
+describe('DELETE /api/contacts/:contactId', () => {
+    beforeEach(async () => {
+        await createUser()
+        await createContact()
+    })
+
+    afterEach(async () => {
+        await removeAllContacts()
+        await removeUser()
+    })
+
+    it('Delete contact sukes', async () => {
+        let contact = await getContact()
+        const result = await supertest(web)
+            .delete('/api/contacts/' + contact.id)
+            .set('Authorization', 'test')
+        
+        expect(result.status).toBe(200)
+        expect(result.body.data).toBe("OK")
+
+        contact = await getContact()
+        expect(contact).toBeNull()
+    })
+})
