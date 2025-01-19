@@ -74,10 +74,12 @@ const removeAllAddress = async () => {
     await prismaClient.address.deleteMany({
         where: {
             contact: {
-                username: "Reyy12"
+                user: {
+                    username: "Reyy12"
+                }
             }
         }
-    })
+    })    
 }
 
 const createAddress = async () => {

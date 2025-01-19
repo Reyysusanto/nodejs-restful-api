@@ -1,6 +1,7 @@
 import supertest from "supertest"
 import { web } from "../src/application/web.js"
 import { createAddress, createManyContact, createUser, getAddress, getContact, removeAllAddress, removeAllContacts, removeUser } from "./test-util.js"
+import { logger } from "../src/application/logging.js"
 
 describe('POST /api/contacts/:contactId/addresses', () => {
     beforeEach(async () => {
@@ -163,6 +164,41 @@ describe('DELETE /api/contacts/:contactId/addresses/:addressId', () => {
 
         const result = await supertest(web)
             .delete('/api/contacts/' + contact.id + '/addresses/' + (address.id + 1))
+            .set('Authorization', 'test')
+
+        expect(result.status).toBe(404)
+    })
+})
+
+describe('GET /api/contacts/:contactId/addresses', () => {
+    beforeEach(async () => {
+        await createUser()
+        await createManyContact()
+        await createAddress()
+    })
+
+    afterEach(async () => {
+        await removeAllAddress()
+        await removeAllContacts()
+        await removeUser()
+    })
+
+    it('menampilkan list address', async () => {
+        const contact = await getContact()
+
+        const result = await supertest(web)
+            .get('/api/contacts/' + contact.id + '/addresses')
+            .set('Authorization', 'test')
+
+        expect(result.status).toBe(200)
+        expect(result.body.data.length).toBe(1)
+    })
+
+    it('gagal menampilkan list address', async () => {
+        const contact = await getContact()
+
+        const result = await supertest(web)
+            .get('/api/contacts/' + (contact.id + 1000) + '/addresses')
             .set('Authorization', 'test')
 
         expect(result.status).toBe(404)

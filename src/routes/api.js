@@ -21,5 +21,6 @@ userRouter.post('/api/contacts/:contactId/addresses', addressContoller.create)
 userRouter.get('/api/contacts/:contactId/addresses/:addressId', addressContoller.get)
 userRouter.put('/api/contacts/:contactId/addresses/:addressId', addressContoller.update)
 userRouter.delete('/api/contacts/:contactId/addresses/:addressId', addressContoller.remove)
+userRouter.get('/api/contacts/:contactId/addresses', addressContoller.list)
 
 export { userRouter }

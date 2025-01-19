@@ -125,4 +125,22 @@ const removeAddress = async (user, contactId, addressId) => {
     })
 }
 
-export default { createAddress, getAddress, updateAddress, removeAddress }
+const listAddress = async (user, contactId) => {
+    contactId = await checkContact(user, contactId)
+
+    return prismaClient.address.findMany({
+        where: {
+            contact_id: contactId
+        },
+        select: {
+            id: true,
+            street: true,
+            city: true,
+            province: true,
+            country: true,
+            postal_code: true
+        }
+    })
+}
+
+export default { createAddress, getAddress, updateAddress, removeAddress, listAddress }
