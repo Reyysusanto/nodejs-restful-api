@@ -117,3 +117,54 @@ describe('PUT /api/contacts/:contactId/address/:addressId', () => {
             expect(result.body.data.postal_code).toBe("1111");
     })
 })
+
+describe('DELETE /api/contacts/:contactId/addresses/:addressId', () => {
+    beforeEach(async () => {
+        await createUser()
+        await createManyContact()
+        await createAddress()
+    })
+
+    afterEach(async () => {
+        await removeAllAddress()
+        await removeAllContacts()
+        await removeUser()
+    })
+
+    it('berhasil delete contact', async () => {
+        const contact = await getContact()
+        let address = await getAddress()
+
+        const result = await supertest(web)
+            .delete('/api/contacts/' + contact.id + '/addresses/' + address.id)
+            .set('Authorization', 'test')
+
+        expect(result.status).toBe(200)
+        expect(result.body.data).toBe("OK")
+
+        address = await getAddress()
+        expect(address).toBeNull()
+    })
+
+    it('gagal delete contact, address tidak ditemukan', async () => {
+        const contact = await getContact()
+        let address = await getAddress()
+
+        const result = await supertest(web)
+            .delete('/api/contacts/' + contact.id + '/addresses/' + (address.id + 1))
+            .set('Authorization', 'test')
+
+        expect(result.status).toBe(404)
+    })
+
+    it('gagal delete contact, kontak tidak ditemukan', async () => {
+        const contact = await getContact()
+        let address = await getAddress()
+
+        const result = await supertest(web)
+            .delete('/api/contacts/' + contact.id + '/addresses/' + (address.id + 1))
+            .set('Authorization', 'test')
+
+        expect(result.status).toBe(404)
+    })
+})
